@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интернет-магазин</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Наш магазин</h1>
+        <div class="categories">
+            <button class="category-btn active" data-category="all">Все товары</button>
+            <button class="category-btn" data-category="Электроника">Электроника</button>
+            <button class="category-btn" data-category="Книги">Книги</button>
+        </div>
+    </header>
+    
+    <div class="products-container" id="products-container">
+        <!-- Товары будут загружены через JavaScript -->
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('products-container');
+            const categoryBtns = document.querySelectorAll('.category-btn');
+            
+            // Загрузка товаров
+        async function loadProducts(category = 'all') {
+            try {
+                // Исправлено: правильные кавычки и закрывающая скобка
+                const response = await fetch(`/products?t=${Date.now()}`);
+                
+                if (!response.ok) throw new Error('Ошибка загрузки');
+                
+                const products = await response.json();
+                const container = document.getElementById('products-container');
+                
+                if (!products || products.length === 0) {
+                    container.innerHTML = '<div class="empty">Товары не найдены</div>';
+                    return;
+                }
+                
+                const filtered = category === 'all' 
+                    ? products 
+                    : products.filter(p => p.categories.includes(category));
+                
+                container.innerHTML = filtered.map(product => `
+                    <div class="product-card">
+                        <h2>${product.name}</h2>
+                        <div class="price">${product.price} руб.</div>
+                        <p>${product.description}</p>
+                        <div class="categories">Категории: ${product.categories.join(', ')}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error:', error);
+                const container = document.getElementById('products-container');
+                container.innerHTML = '<div class="error">Ошибка загрузки товаров</div>';
+            }
+
+}
+            
+            // Обработчики для кнопок категорий
+            categoryBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    categoryBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    loadProducts(btn.dataset.category);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
