@@ -31,6 +31,9 @@ if (!fs.existsSync(DATA_FILE)) {
 }
 
 // Роуты
+app.get('/admin/chat', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/admin-chat.html'));
+});
 
 app.get('/products', (req, res) => {
     try {

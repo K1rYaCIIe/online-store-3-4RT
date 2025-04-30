@@ -47,6 +47,45 @@
         button:hover {
             background-color: #2c632e;
         }
+        #chat-messages {
+            height: 300px;
+            overflow-y: auto;  /* Прокрутка при переполнении */
+            border: 2px solid #000000;
+            background-color: rgb(250, 235, 215);
+            border-radius: 30px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        #connection-status {
+            padding: 5px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .message-admin {
+            color: #0066cc;
+            background-color: #f0f8ff;
+            padding: 5px;
+            margin: 3px 0;
+            border-radius: 4px;
+        }
+
+        .message-client {
+            color: #cc3300;
+            background-color: #fff0f0;
+            padding: 5px;
+            margin: 3px 0;
+            border-radius: 4px;
+        }
+
+        .message-system {
+            color: #669900;
+            font-style: italic;
+            padding: 5px;
+            margin: 3px 0;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -78,7 +117,107 @@
         </table>
     </div>
 
+    <h1>Чат поддержки</h1>
+    <div id="chat-messages" style="height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;"></div>
+    <form id="chat-form">
+        <input type="text" id="chat-input" placeholder="Сообщение" style="width: calc(100% - 80px);">
+        <button type="submit">Отправить</button>
+    </form>
+
     <script>
+        // Единое WebSocket соединение
+        const socket = new WebSocket('ws://localhost:8080');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatMessages = document.getElementById('chat-messages');
+
+        // Создаем элемент статуса соединения
+        const connectionStatus = document.createElement('div');
+        connectionStatus.id = 'connection-status';
+        connectionStatus.textContent = "Статус: подключение...";
+        chatForm.before(connectionStatus);
+
+        // Обработчик входящих сообщений
+        socket.addEventListener('message', async (event) => {
+            try {
+                let messageData;
+                if (event.data instanceof Blob) {
+                    messageData = await event.data.text();
+                } else {
+                    messageData = event.data;
+                }
+                
+                console.log('Получены данные:', messageData);
+                
+                const message = JSON.parse(messageData);
+                const messageElement = document.createElement('div');
+                
+                // Изменяем отображение для своих сообщений
+                const senderDisplay = message.sender === 'Администратор' ? 'Вы' : message.sender;
+                
+                messageElement.className = `message-${message.sender === 'Администратор' ? 'admin' : 
+                                        message.sender === 'Система' ? 'system' : 'client'}`;
+                
+                messageElement.innerHTML = `<strong>${senderDisplay}:</strong> ${message.text}`;
+                chatMessages.appendChild(messageElement);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            } catch (error) {
+                console.error('Ошибка обработки сообщения:', error, event.data);
+            }
+        });
+
+        // Обработчики состояния соединения
+        socket.addEventListener('open', () => {
+            console.log('WebSocket connection established');
+            connectionStatus.textContent = "Статус: онлайн";
+            connectionStatus.style.color = "green";
+        });
+
+        socket.addEventListener('error', (error) => {
+            console.error('WebSocket error:', error);
+            connectionStatus.textContent = "Статус: ошибка";
+            connectionStatus.style.color = "red";
+        });
+
+        socket.addEventListener('close', () => {
+            console.log('WebSocket connection closed');
+            connectionStatus.textContent = "Статус: оффлайн"; 
+            connectionStatus.style.color = "gray";
+        });
+
+
+        // ЗАМЕНИТЕ текущий обработчик формы на этот:
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const text = chatInput.value.trim();
+            
+            if (!text) {
+                alert('Введите текст сообщения');
+                return;
+            }
+            
+            if (socket.readyState !== WebSocket.OPEN) {
+                alert('Нет соединения с сервером. Попробуйте обновить страницу.');
+                return;
+            }
+            
+            try {
+                const message = {
+                    sender: 'Администратор',
+                    text: text,
+                    timestamp: new Date().toISOString()
+                };
+                
+                console.log('Отправка сообщения:', message);
+                socket.send(JSON.stringify(message));
+                chatInput.value = '';
+                
+            } catch (error) {
+                console.error('Ошибка отправки:', error);
+                alert('Ошибка при отправке сообщения');
+            }
+        });
+
         // Загрузка товаров
         async function loadProducts() {
             const response = await fetch('http://localhost:3000/products');
@@ -134,51 +273,52 @@
             });
         }
         
-    // Добавление нового товара
+        // Добавление нового товара
         document.getElementById('add-product-form').addEventListener('submit', async (e) => {
             e.preventDefault();
     
-        const submitBtn = e.target.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        
-        try {
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Отправка...';
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            
+            try {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Отправка...';
 
-            const name = document.getElementById('name').value.trim();
-            const price = parseFloat(document.getElementById('price').value);
-            const description = document.getElementById('description').value.trim();
-            const categories = document.getElementById('categories').value
-            .split(',')
-            .map(cat => cat.trim())
-            .filter(cat => cat.length > 0);
+                const name = document.getElementById('name').value.trim();
+                const price = parseFloat(document.getElementById('price').value);
+                const description = document.getElementById('description').value.trim();
+                const categories = document.getElementById('categories').value
+                    .split(',')
+                    .map(cat => cat.trim())
+                    .filter(cat => cat.length > 0);
 
-            if (!name || isNaN(price) || price <= 0 || !description || categories.length === 0) {
-            throw new Error('Пожалуйста, заполните все поля корректно!');
+                if (!name || isNaN(price) || price <= 0 || !description || categories.length === 0) {
+                    throw new Error('Пожалуйста, заполните все поля корректно!');
+                }
+
+                const response = await fetch('http://localhost:3000/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, price, description, categories })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Ошибка сервера');
+                }
+
+                alert('Товар успешно добавлен!');
+                document.getElementById('add-product-form').reset();
+                await loadProducts();
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert(error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
             }
-
-            const response = await fetch('http://localhost:3000/products', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, price, description, categories })
-            });
-
-            if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Ошибка сервера');
-            }
-
-            alert('Товар успешно добавлен!');
-            document.getElementById('add-product-form').reset();
-            await loadProducts();
-        } catch (error) {
-            console.error('Ошибка:', error);
-            alert(error.message);
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
-        }
         });
+
         // Первоначальная загрузка
         loadProducts();
     </script>
