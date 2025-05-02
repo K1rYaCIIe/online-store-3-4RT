@@ -1,112 +1,267 @@
+/* Базовые настройки */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f9;
     margin: 0;
     padding: 20px;
-    background-color: #ff5d5d;
+    color: #333;
+    line-height: 1.6;
 }
 
-header {
-    text-align: center;
-    margin-bottom: 30px;
+/* Контейнер */
+.main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    padding: 25px;
 }
 
+/* Заголовки */
+h1, h2 {
+    color: #444;
+    margin-top: 0;
+}
+
+h1 {
+    border-bottom: 2px solid #ffc5c5;
+    padding-bottom: 12px;
+    margin-bottom: 25px;
+    font-weight: 500;
+}
+
+/* Категории товаров */
 .categories {
-    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
 }
 
 .category-btn {
-    padding: 8px 16px;
-    margin: 0 5px;
-    background: #ddd;
+    background-color: #f0f0f0;
     border: none;
-    border-radius: 4px;
+    padding: 10px 20px;
+    border-radius: 20px;
     cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+}
+
+.category-btn:hover {
+    background-color: #ffc5c5;
+    color: #333;
 }
 
 .category-btn.active {
-    background: #007bff;
-    color: white;
+    background-color: #ffc5c5;
+    font-weight: 500;
 }
 
+/* Карточки товаров */
 .products-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;
+    margin-bottom: 30px;
 }
 
 .product-card {
     background: white;
+    border-radius: 10px;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    transition: transform 0.3s;
+    border: 1px solid #eee;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 .product-card h2 {
+    color: #444;
+    font-size: 18px;
     margin-top: 0;
-    color: #333;
+    margin-bottom: 10px;
 }
 
 .price {
+    color: #e91e63;
     font-weight: bold;
-    color: #007bff;
+    font-size: 16px;
     margin: 10px 0;
 }
 
-.categories {
-    font-size: 0.9em;
-    color: #666;
-    margin-top: 10px;
+/* Цветовая схема чата */
+:root {
+  --chat-bg: #f8f3f3;             /* Нежно-розовый фон */
+  --message-user-bg: #ffebee;     /* Очень светлый розовый */
+  --message-admin-bg: #e3f2fd;    /* Светло-голубой */
+  --message-system-bg: #f5f5f5;   /* Светло-серый */
+  --text-color: #333;             /* Основной текст */
+  --border-color: #e0c8c8;        /* Тонкая розовая граница */
+  --shadow-color: rgba(0,0,0,0.05);
 }
 
-.fields-selector {
-    margin: 15px 0;
-    padding: 10px;
-    background: #f0f0f0;
-    border-radius: 5px;
-}
-
-.fields-selector label {
-    margin-right: 15px;
-    cursor: pointer;
-}
-
-.fields-selector input {
-    margin-right: 5px;
-}
-
+/* Контейнер чата */
 .chat-container {
-    margin-top: 30px;
-    padding: 15px;
-    border: 2px solid #000000;
-    border-radius: 15px;
-    background-color: #ff8585;
-  }
-  
-  #chat-messages {
-    height: 200px;
+  max-width: 1000px;
+  background: var(--chat-bg);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px var(--shadow-color);
+  margin-top: 30px;
+  border: 1px solid var(--border-color);
+}
+
+.chat-status {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+/* Окно сообщений */
+#chat-messages {
+    height: 300px;
     overflow-y: auto;
+    padding: 15px;
+    background-color: white;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+}
+
+/* Стили сообщений */
+.message {
+    padding: 10px 15px;
     margin-bottom: 10px;
-    padding: 10px;
-    background-color: rgb(250, 235, 215);
-    border: 2px solid #000000;
-    border-radius: 30px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
+    border-radius: 18px;
+    max-width: 80%;
+    word-wrap: break-word;
+    animation: messageAppear 0.3s ease-out;
+    color: var(--text-color);
+    box-shadow: 0 1px 2px var(--shadow-color);
+}
+
+.message-admin {
+    background-color: var(--message-admin-bg);
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+    border: 1px solid #bbdefb;
+}
   
-  #chat-input {
-    width: 70%;
-    padding: 8px;
-    margin-right: 5px;
-  }
-  
-  #send-button {
-    padding: 8px 15px;
-    background-color: #6dda71;
-    color: white;
+.message-user {
+    background-color: var(--message-user-bg);
+    margin-right: auto;
+    border-bottom-left-radius: 4px;
+    border: 1px solid #ffcdd2;
+}
+
+.message-system {
+    background-color: var(--message-system-bg);
+    margin: 15px auto;
+    text-align: center;
+    font-style: italic;
+    border-left: 3px solid #ffc5c5;
+    max-width: 90%;
+}
+
+/* Поле ввода */
+#chat-input {
+    width: calc(100% - 90px);
+    padding: 12px;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    margin-right: 10px;
+    transition: border 0.3s;
+    margin-bottom: 10px;
+}
+
+#chat-input:focus {
+    border-color: #ffc5c5;
+    outline: none;
+}
+
+/* Кнопка отправки */
+#send-button {
+    background-color: #ffc5c5;
+    color: #000000;
     border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
     cursor: pointer;
-  }
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+#send-button:hover {
+    background-color: #ffb3b3;
+    transform: translateY(-1px);
+}
+/* Анимации */
+/* Анимация */
+@keyframes messageAppear {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
   
-  #send-button:hover {
-    background-color: #1b6337;
-  }
+/* Полоса прокрутки */
+#chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+  
+#chat-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+  
+#chat-messages::-webkit-scrollbar-thumb {
+    background: #ffc5c5;
+    border-radius: 3px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .main-container {
+        padding: 15px;
+    }
+    
+    .products-container {
+        grid-template-columns: 1fr;
+    }
+    
+    #chat-messages {
+        height: 250px;
+    }
+}
+
+* {
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.chat-container h2 {
+    color: #555;
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ffc5c5;
+    background: linear-gradient(to right, #ffc5c5, transparent);
+    padding: 10px 15px;
+    margin: -20px -20px 20px -20px;
+    border-radius: 12px 12px 0 0;
+}
+
+.message:hover {
+    transform: scale(1.01);
+    transition: transform 0.2s;
+}
+
+#online-status {
+    color: green;
+    padding: 8px;
+    background-color: #e3f2fd;
+    border-radius: 6px;
+    display: inline-block;
+}

@@ -4,10 +4,12 @@ const path = require('path');
 const cors = require('cors');
 const { graphqlHTTP } = require('express-graphql');
 const { buildSchema } = require('graphql');
-const WebSocket = require('ws'); //+
+const WebSocket = require('ws');
+
 
 const app = express();
 const PORT = 8080;
+
 
 // GraphQL схема
 const schema = buildSchema(`
@@ -26,31 +28,18 @@ const schema = buildSchema(`
   }
 `);
 
-// Модель сообщения чата
-class ChatMessage {
-    constructor(sender, text, timestamp = new Date()) {
-      this.sender = sender;
-      this.text = text;
-      this.timestamp = timestamp.toISOString();
-    }
-  }
-
-// Создаем HTTP сервер для Express
+// Создаем HTTP сервер
 const server = app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
-  console.log(`GraphQL IDE available at http://localhost:${PORT}/graphql`); // Перенесено сюда
 });
 
-// Создаем WebSocket сервер
+// WebSocket сервер
 const wss = new WebSocket.Server({ server });
-
-// Хранилище для клиентов чата
-const chatClients = new Set();
 
 wss.on('connection', (ws) => {
   console.log('New WebSocket connection');
   
-  // Отправляем приветственное сообщение
+  // Приветственное сообщение
   ws.send(JSON.stringify({
       sender: 'Система',
       text: 'Добро пожаловать в чат поддержки!'
@@ -58,25 +47,20 @@ wss.on('connection', (ws) => {
 
   ws.on('message', (message) => {
       try {
-          // Парсим входящее сообщение
-          const parsedMsg = typeof message === 'string' 
-              ? JSON.parse(message) 
-              : JSON.parse(message.toString());
-          
-          console.log('Received:', parsedMsg);
+          const { sender, text } = JSON.parse(message.toString());
+          const senderType = sender === 'Администратор' ? 'Администратор' : 'Пользователь';
 
-          // Рассылаем всем клиентам (включая отправителя)
+          // Рассылаем всем клиентам, кроме отправителя
           wss.clients.forEach(client => {
-              if (client.readyState === WebSocket.OPEN) {
-                  client.send(JSON.stringify({
-                      sender: parsedMsg.sender,
-                      text: parsedMsg.text,
-                      timestamp: new Date().toISOString()
-                  }));
-              }
-          });
+            if (client !== ws && client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({
+                    sender: senderType,
+                    text: text
+                }));
+            }
+        });
       } catch (error) {
-          console.error('Error processing message:', error);
+          console.error('Ошибка обработки сообщения:', error);
       }
   });
 });
@@ -86,8 +70,9 @@ wss.on('connection', (ws) => {
 // Улучшенная функция для загрузки товаров с обработкой ошибок
 function loadProducts() {
   try {
-    const filePath = path.join(__dirname, '../admin-backend/products.json');
-    
+    // const filePath = path.join(__dirname, '../admin-backend/products.json');
+    const filePath = path.join(__dirname, '../shared_data/products.json'); // Упрощаем путь
+
     // Проверка существования файла
     if (!fs.existsSync(filePath)) {
       throw new Error('Products file not found');
@@ -143,8 +128,9 @@ const root = {
 
 // Настройка CORS с явным указанием разрешенных источников
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:8080'],
-  methods: ['GET', 'POST']
+  origin: ['http://localhost:3000', 'http://localhost:8080', 'http://127.0.0.1:8080'],
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type']
 }));
 wss.on('error', (error) => {
   console.error('WebSocket server error:', error);
