@@ -33,12 +33,19 @@ h1 {
 
 /* Категории товаров */
 .categories {
+    margin: 0 auto;
     display: flex;
     gap: 10px;
     margin-bottom: 25px;
     flex-wrap: wrap;
 }
-
+.fields-selector{
+    background: linear-gradient(to right, #ffc5c5, transparent);;
+    width: 100%;
+    margin-bottom: 10px;
+    border-radius: 15px;
+    padding: 10px 10px;
+}
 .category-btn {
     background-color: #f0f0f0;
     border: none;
@@ -108,6 +115,7 @@ h1 {
 
 /* Контейнер чата */
 .chat-container {
+  margin: 0 auto;
   max-width: 1000px;
   background: var(--chat-bg);
   border-radius: 12px;

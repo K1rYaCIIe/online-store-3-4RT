@@ -129,6 +129,8 @@ td {
 }
 
 .chat-container {
+    margin: 0 auto;
+    max-width: 1000px;
     background: var(--chat-bg);
     border-radius: 12px;
     padding: 20px;
