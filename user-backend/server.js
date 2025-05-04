@@ -71,7 +71,7 @@ wss.on('connection', (ws) => {
 function loadProducts() {
   try {
     // const filePath = path.join(__dirname, '../admin-backend/products.json');
-    const filePath = path.join(__dirname, '../shared_data/products.json'); // Упрощаем путь
+    const filePath = '/app/shared_data/products.json'; // Упрощаем путь
 
     // Проверка существования файла
     if (!fs.existsSync(filePath)) {

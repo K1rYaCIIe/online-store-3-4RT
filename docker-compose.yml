@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  admin:
+    build: ./admin-backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./shared_data:/app/shared_data  # Маппинг общей папки
+    networks:
+      - app-network
+
+  user:
+    build: ./user-backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./shared_data:/app/shared_data  # Та же папка для user
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

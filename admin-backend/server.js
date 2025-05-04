@@ -5,7 +5,7 @@ const cors = require('cors');
 
 const app = express();
 const PORT = 3000;
-const DATA_FILE = path.join(__dirname, '../shared_data/products.json');
+const DATA_FILE = '/app/shared_data/products.json';
 
 // Настройка CORS (один раз!)
 app.use(cors({
